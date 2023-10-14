@@ -1,5 +1,7 @@
 package calculadoreexpresiones;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class PostFijo {
@@ -50,6 +52,7 @@ public class PostFijo {
 
     public static String obtenerPostFijo() {
         expresionPostfijo = "";
+        errorExpresion = "";
 
         Stack p = new Stack();
         int noOperador = 0; // 0: no es operador, 1: es parentesis (, 2: es parentesis ), 3: es operando
@@ -102,8 +105,11 @@ public class PostFijo {
         if (parentesis > 0) {
             errorExpresion = "Error convirtiendo: Hace falta parentesis derecho";
             expresionPostfijo = "";
-        } else if (error || i == 0 || noOperador == 0) {
+        } else if (error && !errorExpresion.equals("")) {
             errorExpresion = "Error convirtiendo: " + errorExpresion;
+            expresionPostfijo = "";
+        } else if (error || i == 0 || noOperador == 0) {
+            errorExpresion = "Error convirtiendo: No hay expresión o falta operandos";
             expresionPostfijo = "";
         } else {
             //Terminar de construir la expresión POSTFIJO
@@ -112,8 +118,47 @@ public class PostFijo {
                 expresionPostfijo = expresionPostfijo + (String) p.pop();
             }
         }
-
         return expresionPostfijo;
+    }
+
+    public static List<String> obtenerVariables() {
+        List<String> variables = new ArrayList<>();
+
+        boolean error = false;
+        int tipoOperando = 0; //0: no es operando, 1: es variable, 2: es constante numerica
+        String texto = "";
+        int i = 0;
+        //Recorrer cada uno de los caracteres
+        while (i < expresionPostfijo.length() && !error) {
+            String caracter = expresionPostfijo.substring(i, i + 1);
+            if (esLetra(caracter) && tipoOperando == 2) {
+                error = true;
+            } else if ((esLetra(caracter) && tipoOperando < 2)
+                    || (esDigito(caracter) && tipoOperando == 1)) {
+                tipoOperando = 1;
+                texto += caracter;
+            } else if (esDigito(caracter) && tipoOperando != 1) {
+                tipoOperando = 2;
+                texto += caracter;
+            } else if (caracter.equals(" ") && tipoOperando == 1) {
+                //no permitir variables repetidas
+                if (!variables.contains(texto)) {
+                    variables.add(texto);
+                }
+                texto = "";
+                tipoOperando = 0;
+            } else if (caracter.equals(" ") && tipoOperando == 2) {
+                texto = "";
+                tipoOperando = 0;
+            }
+            i++;
+        }
+        if (!error) {
+            return variables;
+        } else {
+            errorExpresion = "Error obteniendo variables";
+            return null;
+        }
 
     }
 
