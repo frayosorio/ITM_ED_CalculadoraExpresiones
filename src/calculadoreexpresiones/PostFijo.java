@@ -3,6 +3,8 @@ package calculadoreexpresiones;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class PostFijo {
 
@@ -123,6 +125,7 @@ public class PostFijo {
 
     public static List<String> obtenerVariables() {
         List<String> variables = new ArrayList<>();
+        errorExpresion = "";
 
         boolean error = false;
         int tipoOperando = 0; //0: no es operando, 1: es variable, 2: es constante numerica
@@ -160,6 +163,62 @@ public class PostFijo {
             return null;
         }
 
+    }
+
+    public static void mostrarVariables(JTable tbl) {
+        List<String> variables = PostFijo.obtenerVariables();
+        String[] encabezados = new String[]{"variable", "valor"};
+        String[][] datos = null;
+
+        if (variables != null) {
+            datos = new String[variables.size()][2];
+            for (int i = 0; i < variables.size(); i++) {
+                datos[i][0] = variables.get(i);
+            }
+        }
+        DefaultTableModel dtm = new DefaultTableModel(datos, encabezados);
+        tbl.setModel(dtm);
+    }
+
+    public static ArbolBinario obtenerArbol() {
+        errorExpresion = "";
+        Stack p = new Stack();
+        TipoOperando tipo = TipoOperando.NINGUNO;
+
+        String texto = "";
+        int i = 0;
+        //Recorrer cada uno de los caracteres
+        while (i < expresionPostfijo.length() && errorExpresion.equals("")) {
+            String caracter = expresionPostfijo.substring(i, i + 1);
+            if (esLetra(caracter) && tipo == TipoOperando.CONSTANTE) {
+                errorExpresion = "Una constante numérica no puede tener letras";
+            } else if ((esLetra(caracter) && tipo != TipoOperando.CONSTANTE)
+                    || (esDigito(caracter) && tipo == TipoOperando.VARIABLE)) {
+                tipo = TipoOperando.VARIABLE;
+                texto += caracter;
+            } else if (esDigito(caracter) && tipo != TipoOperando.VARIABLE) {
+                tipo = TipoOperando.CONSTANTE;
+                texto += caracter;
+            } else if (caracter.equals(" ") && tipo != TipoOperando.NINGUNO) {
+                //no permitir variables repetidas
+                Nodo nOperando = new Nodo(texto, tipo);
+                p.push(nOperando);
+                texto = "";
+                tipo = TipoOperando.NINGUNO;
+            } else {
+                caracter = expresionPostfijo.substring(i, i + 1);
+                if (PostFijo.esOperador(caracter)) {
+                    Nodo nOperador = new Nodo(caracter, TipoOperando.NINGUNO);
+                    Nodo nDerecho = (Nodo) p.pop();
+                    Nodo nIzquierdo = (Nodo) p.pop();
+                    nOperador.izquierdo = nIzquierdo;
+                    nOperador.derecho = nDerecho;
+                    p.push(nOperador);
+                }
+            }
+            i++;
+        }
+        return errorExpresion.equals("") ? new ArbolBinario((Nodo) p.pop()) : null;
     }
 
 }
