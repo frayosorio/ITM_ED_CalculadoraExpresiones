@@ -176,7 +176,11 @@ public class PostFijo {
                 datos[i][0] = variables.get(i);
             }
         }
-        DefaultTableModel dtm = new DefaultTableModel(datos, encabezados);
+        DefaultTableModel dtm = new DefaultTableModel(datos, encabezados) {
+            public boolean isCellEditable(int rowIndex, int colIndex) {
+                return colIndex == 0 ? false : true;
+            }
+        };
         tbl.setModel(dtm);
     }
 
