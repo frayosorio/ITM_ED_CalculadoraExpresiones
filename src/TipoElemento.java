@@ -1,0 +1,8 @@
+public enum TipoElemento {
+    OPERADOR,
+    PARENTESIS_IZQUIERDO,
+    PARENTESIS_DERECHO,
+    OPERANDO,
+    VARIABLE,
+    CONSTANTE_NUMERICA
+}

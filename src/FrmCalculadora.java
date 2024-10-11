@@ -5,7 +5,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
+import javax.swing.JOptionPane;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,20 +32,20 @@ public class FrmCalculadora extends JFrame {
         setTitle("Calculadora de Expresiones");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(null);
-        
+
         lblExpresion.setText("Expresión aritmética:");
         lblExpresion.setBounds(10, 10, 200, 25);
         getContentPane().add(lblExpresion);
 
         txtExpresion.setBounds(210, 10, 200, 25);
         getContentPane().add(txtExpresion);
-        
+
         btnProcesar.setText("Analizar Expresión");
         btnProcesar.setBounds(10, 50, 150, 25);
         getContentPane().add(btnProcesar);
 
         tblVariables = new JTable();
-        DefaultTableModel dtm = new DefaultTableModel(null, new String[]{});
+        DefaultTableModel dtm = new DefaultTableModel(null, new String[] {});
         tblVariables.setModel(dtm);
         JScrollPane sp = new JScrollPane(tblVariables);
         sp.setBounds(200, 50, 300, 250);
@@ -72,7 +73,14 @@ public class FrmCalculadora extends JFrame {
     }
 
     private void btnProcesarClick(ActionEvent evt) {
-
+        PostFijo.setExpresionInfijo(txtExpresion.getText());
+        PostFijo.getExpresionPostfijo();
+        String error = PostFijo.getErrorExpresion();
+        if (error.length() > 0) {
+            JOptionPane.showMessageDialog(null, error);
+        } else {
+            PostFijo.mostrarVariables(tblVariables);
+        }
     }
 
     private void btnEjecutarClick(ActionEvent evt) {
