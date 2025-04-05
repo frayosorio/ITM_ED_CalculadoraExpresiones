@@ -71,7 +71,8 @@ public class FrmCalculadora extends JFrame {
     }
 
     private void btnAnalizarClick(ActionEvent evt) {
-
+        Postfijo.setExpresionInfijo(txtExpresion.getText());
+        Postfijo.getExpresionPostfijo();
     }
 
     private void btnEjecutarClick(ActionEvent evt) {
