@@ -1,4 +1,9 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class Postfijo {
 
@@ -119,6 +124,59 @@ public class Postfijo {
         }
 
         return expresionPostfijo;
+    }
+
+    public static List<String> getVariables() {
+        String expresionPostfijo = getExpresionPostfijo();
+
+        List<String> variables = new ArrayList<>();
+        boolean error = false;
+        int i = 0;
+
+        TipoElemento tipo = TipoElemento.OPERADOR;
+        String texto = "";
+        while (i < expresionPostfijo.length() && !error) {
+            String caracter = expresionPostfijo.substring(i, i + 1);
+
+            if (esLetra(caracter) && tipo == TipoElemento.CONSTANTE_NUMERICA) {
+                errorExpresion = "Caracter inválido para una constante numérica";
+                error = true;
+            } else if ((esLetra(caracter) && tipo.ordinal() < TipoElemento.CONSTANTE_NUMERICA.ordinal())
+                    || (esDigito(caracter) && tipo == TipoElemento.VARIABLE)) {
+                texto += caracter;
+                tipo = TipoElemento.VARIABLE;
+            } else if (esDigito(caracter) && tipo != TipoElemento.VARIABLE) {
+                texto += caracter;
+                tipo = TipoElemento.CONSTANTE_NUMERICA;
+            } else if (caracter.equals(" ") && tipo == TipoElemento.VARIABLE) {
+                if (!variables.contains(texto)) {
+                    variables.add(texto);
+                }
+                texto = "";
+                tipo = TipoElemento.OPERADOR;
+            } else if (caracter.equals(" ") && tipo == TipoElemento.CONSTANTE_NUMERICA) {
+                texto = "";
+                tipo = TipoElemento.OPERADOR;
+            }
+            i++;
+        }
+        return !error ? variables : null;
+    }
+
+    public static void mostrarVariables(JTable tbl) {
+        DefaultTableModel dtm = new DefaultTableModel(null, encabezados);
+        var variables = getVariables();
+        if (variables != null) {
+            String[][] datos = new String[variables.size()][2];
+            int fila = 0;
+            for (String variable : variables) {
+                datos[fila][0] = variable;
+                fila++;
+            }
+            dtm = new DefaultTableModel(datos, encabezados);
+
+        }
+        tbl.setModel(dtm);
     }
 
 }

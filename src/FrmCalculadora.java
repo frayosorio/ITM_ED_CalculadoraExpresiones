@@ -1,6 +1,7 @@
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -72,8 +73,9 @@ public class FrmCalculadora extends JFrame {
 
     private void btnAnalizarClick(ActionEvent evt) {
         Postfijo.setExpresionInfijo(txtExpresion.getText());
-        System.out.println("\n" + Postfijo.getExpresionPostfijo());
-        System.out.println(Postfijo.getErrorExpresion());
+        Postfijo.mostrarVariables(tblVariables);
+        if(!Postfijo.getErrorExpresion().equals(""))
+            JOptionPane.showMessageDialog(null, Postfijo.getErrorExpresion());
     }
 
     private void btnEjecutarClick(ActionEvent evt) {
