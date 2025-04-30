@@ -43,7 +43,7 @@ public class Postfijo {
                 antecesor = true;
             }
         } else if (operador1.equals("/") || operador1.equals("*")) {
-            if (!operador2.equals("^") || !operador2.equals("%")) {
+            if (!operador2.equals("^") && !operador2.equals("%")) {
                 antecesor = true;
             }
         } else if (operador1.equals("+") || operador1.equals("-")) {
@@ -177,6 +177,45 @@ public class Postfijo {
 
         }
         tbl.setModel(dtm);
+    }
+
+    public static Arbol getArbol() {
+        String expresionPostfijo = getExpresionPostfijo();
+        Stack pila = new Stack();
+        boolean error = false;
+        int i = 0;
+        String texto = "";
+        TipoElemento tipo = TipoElemento.OPERADOR;
+        while (i < expresionPostfijo.length() && !error) {
+            String caracter = expresionPostfijo.substring(i, i + 1);
+            if (esLetra(caracter) && tipo == TipoElemento.CONSTANTE_NUMERICA) {
+                errorExpresion = "Caracter inválido para una constante numérica";
+                error = true;
+            } else if ((esLetra(caracter) && tipo.ordinal() < TipoElemento.CONSTANTE_NUMERICA.ordinal())
+                    || (esDigito(caracter) && tipo == TipoElemento.VARIABLE)) {
+                texto += caracter;
+                tipo = TipoElemento.VARIABLE;
+            } else if (esDigito(caracter) && tipo != TipoElemento.VARIABLE) {
+                texto += caracter;
+                tipo = TipoElemento.CONSTANTE_NUMERICA;
+            } else if (caracter.equals(" ") && tipo != TipoElemento.OPERADOR) {
+                Nodo nodo = new Nodo(texto, tipo);
+                pila.push(nodo);
+                texto = "";
+                tipo = TipoElemento.OPERADOR;
+            } else if (esOperador(caracter)) {
+                Nodo nodoDerecho = (Nodo) pila.pop();
+                Nodo nodoIzquierdo = (Nodo) pila.pop();
+                Nodo nodoOperador = new Nodo(caracter, TipoElemento.OPERADOR);
+                nodoOperador.derecho = nodoDerecho;
+                nodoOperador.izquierdo = nodoIzquierdo;
+                pila.push(nodoOperador);
+            }
+
+            i++;
+        }
+        return error ? null : new Arbol((Nodo) pila.pop());
+
     }
 
 }

@@ -10,6 +10,8 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FrmCalculadora extends JFrame {
 
@@ -74,12 +76,29 @@ public class FrmCalculadora extends JFrame {
     private void btnAnalizarClick(ActionEvent evt) {
         Postfijo.setExpresionInfijo(txtExpresion.getText());
         Postfijo.mostrarVariables(tblVariables);
-        if(!Postfijo.getErrorExpresion().equals(""))
+        if (!Postfijo.getErrorExpresion().equals(""))
             JOptionPane.showMessageDialog(null, Postfijo.getErrorExpresion());
     }
 
     private void btnEjecutarClick(ActionEvent evt) {
+        Postfijo.setExpresionInfijo(txtExpresion.getText());
+        Arbol arbol = Postfijo.getArbol();
+        if (Postfijo.getErrorExpresion().equals("")) {
+            var variables = Postfijo.getVariables();
+            List<Double> valores = new ArrayList();
 
+            DefaultTableModel dtm = (DefaultTableModel) tblVariables.getModel();
+
+            for (int i = 0; i < variables.size(); i++) {
+                try {
+                    valores.add(Double.parseDouble(dtm.getValueAt(i, 1).toString()));
+                } catch (Exception ex) {
+                    valores.add(0.0);
+                }
+            }
+
+            txtResultado.setText(String.valueOf(arbol.ejecutar(variables, valores)));
+        }
     }
 
 }
